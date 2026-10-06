@@ -131,6 +131,123 @@ These findings provide the business motivation for the next stages of segmentati
 
 ---
 
+## Phase 2 — Exploratory Data Analysis and Statistical Testing
+
+Customer-level purchasing behavior was explored using descriptive statistics, distribution analysis, non-parametric hypothesis testing, bootstrap confidence intervals, and Spearman correlation.
+
+### Customer Behavior Distributions
+
+Customer purchasing metrics are strongly right-skewed.
+
+- Average order value skewness: **53.42**
+- Total revenue skewness: **25.34**
+- Total units skewness: **21.84**
+- Order count skewness: **12.11**
+- Recency skewness: **0.89**
+- Customer lifespan skewness: **0.39**
+
+The strongest skew appears in customer spending, purchase volume, and frequency, reflecting a relatively small number of exceptionally high-value customers.
+
+Log transformations were used during exploratory visualization to make highly skewed distributions easier to inspect while preserving the original variables.
+
+### One-Time vs Repeat Customers
+
+Repeat customers show substantially stronger purchasing behavior than one-time customers.
+
+#### One-Time Customers
+
+- Customers: **1,625**
+- Median total revenue: **£227.10**
+- Mean total revenue: **£342.25**
+- Median average order value: **£227.10**
+- Median units purchased: **130**
+- Median recency: **386 days**
+
+#### Repeat Customers
+
+- Customers: **4,236**
+- Median total revenue: **£1,363.86**
+- Mean total revenue: **£3,899.13**
+- Median average order value: **£291.08**
+- Median units purchased: **794**
+- Median recency: **59 days**
+
+Repeat customers therefore generate substantially more cumulative value and purchase volume while also showing much more recent engagement.
+
+Total revenue differences are partly structural because repeat customers have multiple purchasing opportunities. Average order value provides a more direct per-order comparison.
+
+### Statistical Comparison of Average Order Value
+
+Because average order value is extremely right-skewed, a **Mann–Whitney U test** was used instead of relying on a normal-distribution assumption.
+
+Results:
+
+- **Repeat customers:** 4,236
+- **One-time customers:** 1,625
+- **Mann–Whitney U:** 4,105,272
+- **p-value:** 2.57 × 10⁻³⁰
+- **Rank-biserial correlation:** 0.193
+
+The extremely small p-value provides strong statistical evidence that average order value differs between one-time and repeat customers.
+
+However, the rank-biserial correlation indicates a **relatively small effect size**.
+
+This means the difference is statistically clear but modest in practical magnitude.
+
+### Bootstrap Confidence Interval
+
+The observed difference in median average order value is:
+
+**£63.98**
+
+Repeat customers have a median average order value approximately £64 higher than one-time customers.
+
+The **95% bootstrap confidence interval** is:
+
+**£50.78 to £77.26**
+
+Because the entire interval lies above zero, the bootstrap analysis provides additional support for a positive difference between the groups.
+
+### Customer Metric Relationships
+
+Spearman rank correlation was used because several customer variables are highly skewed and contain extreme values.
+
+Several strong relationships were identified:
+
+- Total units and total revenue: **0.95**
+- Order count and customer lifespan: **0.88**
+- Order count and total revenue: **0.86**
+- Order count and total units: **0.82**
+- Total revenue and customer lifespan: **0.77**
+- Total units and customer lifespan: **0.73**
+- Average order value and total revenue: **0.65**
+
+Recency is negatively associated with several engagement and value metrics:
+
+- Recency vs order count: **-0.56**
+- Recency vs customer lifespan: **-0.57**
+- Recency vs total units: **-0.51**
+- Recency vs total revenue: **-0.51**
+
+Customers who have been inactive for longer therefore tend to have lower historical purchase frequency, revenue, and customer tenure.
+
+These relationships represent associations and should not be interpreted as evidence of causation.
+
+### Phase 2 Takeaway
+
+The exploratory and statistical analysis shows that:
+
+- customer purchasing behavior is highly skewed;
+- customer value is concentrated among a relatively small group of highly active customers;
+- repeat customers have much higher cumulative revenue and purchase volume;
+- repeat customers also tend to have moderately higher average order values;
+- the AOV difference is statistically convincing but modest in effect size;
+- recency, frequency, monetary value, and customer lifespan are strongly related to customer engagement.
+
+These findings support using **recency, frequency, monetary value, purchase volume, and customer-tenure-related features** in the segmentation and churn-modeling phases that follow.
+
+---
+
 ## PostgreSQL
 
 The cleaned merchandise data is stored in PostgreSQL 17 using Docker.
@@ -163,7 +280,8 @@ retail-customer-retention/
 │   └── processed/
 ├── notebooks/
 │   ├── 01_data_exploration.ipynb
-│   └── 02_sql_business_analytics.ipynb
+│   ├── 02_sql_business_analytics.ipynb
+│   └── 03_eda_statistics.ipynb
 ├── scripts/
 │   └── load_postgres.py
 ├── src/
