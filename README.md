@@ -52,18 +52,18 @@ Customers must have at least one qualifying merchandise purchase during the obse
 
 ### Historical Cutoffs
 
-Training snapshots:
+Development snapshots:
 
 - 2010-09-01
 - 2010-12-01
 - 2011-03-01
 - 2011-06-01
 
-Final untouched test snapshot:
+Final test snapshot:
 
 - 2011-09-01
 
-The final test period is kept chronologically separate from the training snapshots to reduce temporal leakage.
+The final test period is kept chronologically separate from the development snapshots to reduce temporal leakage.
 
 ---
 
@@ -116,7 +116,7 @@ Customer recency was measured relative to the final transaction date in the data
 - **10.05%** purchased 91–180 days ago.
 - **40.73%** had not purchased for more than 180 days.
 
-Recency alone is not used as the final churn definition; predictive modeling will use the predefined historical observation and label windows.
+Recency alone is not used as the final churn definition; predictive modeling uses the predefined historical observation and label windows.
 
 ### Phase 1 Business Takeaway
 
@@ -248,6 +248,126 @@ These findings support using **recency, frequency, monetary value, purchase volu
 
 ---
 
+## Phase 3 — Customer Segmentation and Churn Modeling
+
+Phase 3 combines interpretable customer segmentation with leakage-safe churn prediction using historical customer snapshots.
+
+For each snapshot:
+
+- customer features are calculated using only the preceding 180 days;
+- churn is defined by whether the customer makes a qualifying merchandise purchase during the following 90 days;
+- future behavior is used only to create the churn label and is never included in the predictive features.
+
+### Customer Segmentation
+
+Two segmentation approaches were compared:
+
+- **RFM segmentation**, using Recency, Frequency, and Monetary Value;
+- **K-Means clustering**, using standardized and log-transformed RFM behavior.
+
+RFM produced six business-oriented customer groups with substantially different future churn rates:
+
+- **Champions:** 12.90%
+- **Loyal Customers:** 39.56%
+- **At Risk:** 52.03%
+- **Needs Attention:** 65.50%
+- **Promising:** 66.01%
+- **Hibernating:** 72.37%
+
+K-Means identified three broader customer groups and showed similar overall behavioral patterns.
+
+RFM was retained as the primary segmentation framework because it provides more granular and business-interpretable groups, particularly for identifying valuable customers whose recent activity has weakened.
+
+### Time-Based Churn Modeling
+
+The predictive workflow uses chronological model development rather than a random train/test split.
+
+- **Training snapshots:** 2010-09-01, 2010-12-01, 2011-03-01
+- **Validation snapshot:** 2011-06-01
+- **Original untouched final test:** 2011-09-01
+
+The original churn model uses five leakage-safe behavioral features:
+
+- recency;
+- order frequency;
+- monetary value;
+- total units purchased;
+- average order value.
+
+Two models were compared on the validation period:
+
+- **Logistic Regression:** PR-AUC = 0.699, ROC-AUC = 0.750
+- **XGBoost:** PR-AUC = 0.684, ROC-AUC = 0.741
+
+Logistic Regression was retained because it provided stronger churn-risk ranking while remaining simpler and more interpretable.
+
+### Final Test Performance
+
+After refitting Logistic Regression on all development periods, the original final-test evaluation achieved:
+
+- **PR-AUC:** 0.588
+- **ROC-AUC:** 0.732
+- **churn recall at a 0.50 threshold:** 83.6%
+- **churn precision at a 0.50 threshold:** 52.3%
+
+The validation and final-test churn rates differ substantially:
+
+- **Validation churn rate:** 50.04%
+- **Final-test churn rate:** 39.31%
+
+Because PR-AUC depends on positive-class prevalence, the reduction from 0.699 to 0.588 should not by itself be interpreted as an equivalent deterioration in model discrimination.
+
+ROC-AUC changed only from 0.750 to 0.732, indicating that ranking discrimination remained broadly similar across the later period.
+
+### Retention Campaign Targeting
+
+The model was also evaluated under limited customer-contact budgets.
+
+On the final test period:
+
+- targeting the highest-risk **5%** of customers captured **8.73%** of all churners, with **68.35% precision** and **1.74× lift**;
+- targeting the highest-risk **10%** captured **16.82%** of churners, with **66.06% precision** and **1.68× lift**;
+- targeting the highest-risk **20%** captured **32.26%** of churners, with **63.36% precision** and **1.61× lift**.
+
+The cumulative lift curve remained above random targeting across most of the ranking, showing that the model can prioritize customers under different retention-campaign capacities.
+
+### Enhanced Feature Experiment
+
+Five additional leakage-safe behavioral variables were evaluated:
+
+- active purchasing days;
+- product diversity;
+- purchase span;
+- recent 30-day order share;
+- recent 30-day revenue share.
+
+These features did not materially improve validation performance.
+
+For Logistic Regression:
+
+- PR-AUC changed from **0.699 to 0.697**;
+- ROC-AUC changed from **0.750 to 0.751**.
+
+For XGBoost:
+
+- PR-AUC remained **0.684**;
+- ROC-AUC remained **0.741**.
+
+Because the richer feature set produced no consistent predictive improvement, the original five-feature Logistic Regression was retained.
+
+The enhanced models were not evaluated on the final test period because that period had already been inspected and validation results did not justify changing the selected model specification.
+
+### Phase 3 Limitations
+
+- Churn is defined operationally as no purchase during the following 90 days; it does not necessarily represent permanent customer loss.
+- The same customer can appear in multiple historical snapshots at different points in time.
+- Returns and cancellations are not included in the current churn-model feature table.
+- PR-AUC must be interpreted alongside the churn base rate.
+- Model predictions represent association rather than causation.
+- Probability calibration has not yet been evaluated and will be addressed before predicted probabilities are used for revenue-at-risk calculations.
+
+---
+
 ## PostgreSQL
 
 The cleaned merchandise data is stored in PostgreSQL 17 using Docker.
@@ -281,7 +401,8 @@ retail-customer-retention/
 ├── notebooks/
 │   ├── 01_data_exploration.ipynb
 │   ├── 02_sql_business_analytics.ipynb
-│   └── 03_eda_statistics.ipynb
+│   ├── 03_eda_statistics.ipynb
+│   └── 04_segmentation_churn_modeling.ipynb
 ├── scripts/
 │   └── load_postgres.py
 ├── src/
