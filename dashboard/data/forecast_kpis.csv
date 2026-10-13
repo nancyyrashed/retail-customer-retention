@@ -1,0 +1,2 @@
+forecast_total_13w,average_weekly_forecast,weekly_error_margin,selected_model,selected_model_smape_pct,forecast_start,forecast_end,forecast_weeks
+1433386.67,110260.51,60478.76,Seasonal Naive (52-week),18.22,2011-12-16,2012-03-09,13

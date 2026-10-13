@@ -1,0 +1,7 @@
+segment_order,rfm_segment,customers,churners,churn_rate_pct,customer_share_pct,avg_recency_days,avg_monetary_value
+1,Champions,546,50,9.16,19.73,16.8,3904.67
+2,Loyal Customers,649,202,31.12,23.45,37.5,947.98
+3,At Risk,361,151,41.83,13.04,106.2,1022.68
+4,Needs Attention,217,118,54.38,7.84,57.6,332.64
+5,Promising,245,131,53.47,8.85,21.1,443.26
+6,Hibernating,750,436,58.13,27.1,126.7,252.91

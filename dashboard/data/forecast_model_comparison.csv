@@ -1,0 +1,5 @@
+model,mae,rmse,smape_pct,smape_rank,selected_model
+Seasonal Naive (52-week),30106.9,44972.9,18.22,1,True
+"ARIMA(1,0,0)",56555.01,77595.31,35.63,2,False
+LightGBM,60541.55,80225.8,37.8,3,False
+ETS Damped Trend,79384.1,101253.41,46.48,4,False

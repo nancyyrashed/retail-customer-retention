@@ -1,0 +1,6 @@
+feature,mean_abs_shap,importance_rank
+Frequency,0.3088,1
+Monetary Value,0.2346,2
+Total Units,0.2118,3
+Recency,0.1972,4
+Average Order Value,0.0576,5

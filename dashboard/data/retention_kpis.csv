@@ -1,0 +1,2 @@
+eligible_customers,priority_customers,priority_customer_share,projected_90d_value,estimated_revenue_at_risk,revenue_at_risk_share,avg_calibrated_churn_probability,observed_churn_rate
+2768,554,0.200145,1743419.6,371526.51,0.213102,0.492381,0.393064
