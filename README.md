@@ -373,7 +373,6 @@ retail-customer-retention/
 │
 ├── .env.example
 ├── .gitignore
-├── DECISIONS.md
 ├── docker-compose.yml
 ├── requirements.txt
 └── README.md
